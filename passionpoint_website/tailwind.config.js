@@ -1,1 +1,7 @@
-// tailwind.config.js - Placeholder content
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
