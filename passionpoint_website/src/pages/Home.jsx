@@ -1,6 +1,6 @@
 // pages/Home.jsx - Placeholder content
 import React from "react";
-import { Button } from "../components/ui/button";
+import { Button } from "../components/ui/button.tsx";
 import { motion } from "framer-motion";
 
 export default function HomePage() {
