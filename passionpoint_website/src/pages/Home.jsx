@@ -8,7 +8,10 @@ export default function HomePage() {
     <div className="relative min-h-screen w-full bg-cover bg-center text-white" style={{ backgroundImage: "url('/images/background.jpg')" }}>
       {/* Navbar */}
       <header className="absolute top-0 left-0 w-full px-6 py-4 flex justify-between items-center bg-black/40 backdrop-blur-md z-10">
-        <div className="text-2xl font-bold">PassionPoint</div>
+       <div className="flex items-center space-x-2">
+          <img src="/images/logo.png" alt="PassionPoint Logo" className="h-10 w-10" />
+          <div className="text-2xl font-bold">PassionPoint</div>
+        </div>
         <nav className="space-x-6 text-lg">
           <a href="#" className="hover:text-gray-300">Home</a>
           <a href="#" className="hover:text-gray-300">About Us</a>
