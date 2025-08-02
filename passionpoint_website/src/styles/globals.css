@@ -1,18 +1,27 @@
-/* src/styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add custom styles below */
+
+/* Global reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body {
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
   height: 100%;
   width: 100%;
+  background-color: #0A0A0A;
   overflow-x: hidden;
-  font-family: sans-serif;
 }
 
-#root {
-  height: 100%;
-  width: 100%;
+/* App-specific overrides (comes AFTER the general reset) */
+.App {
+  margin: 0;
+  padding: 0;
 }
