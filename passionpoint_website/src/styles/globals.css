@@ -9,7 +9,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  outline: 1px solid red;
 }
 
 html, body, #root {
@@ -17,7 +16,6 @@ html, body, #root {
   padding: 0 !important;
   height: 100%;
   width: 100%;
-  background-color: #0A0A0A;
   overflow-x: hidden;
 }
 
