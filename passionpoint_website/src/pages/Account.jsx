@@ -1,13 +1,13 @@
-// pages/Account.jsx - Placeholder content
-import React from "react";
+// src/pages/Account.jsx
+import React from "react"
+import ProfilePage from "./ProfilePage"
 
-const Account = () => {
+function Account() {
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-semibold">My Account</h2>
-      <p className="mt-2">Manage your profile and settings here.</p>
+    <div className="min-h-screen bg-gray-100">
+      <ProfilePage />
     </div>
-  );
-};
+  )
+}
 
-export default Account;
+export default Account
