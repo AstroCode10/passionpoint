@@ -1,9 +1,10 @@
 module.exports = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx}",  // for React
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {},
   },
   plugins: [],
 }
+
