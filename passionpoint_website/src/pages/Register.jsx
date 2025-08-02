@@ -1,31 +1,73 @@
 // pages/Register.jsx - Placeholder content
-import React from "react";
+// Register.jsx
+import React, { useState } from 'react';
+import { auth, db } from '../firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
-function Register() {
+export default function Register() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Set role in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        role: 'member',
+        createdAt: new Date(),
+      });
+
+      alert('Account created! 🎉');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
-    <section className="p-8 max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Register</h2>
-      <form className="space-y-4">
-        <input
-          type="text"
-          placeholder="Name"
-          className="w-full p-2 border rounded"
-        />
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <form onSubmit={handleRegister} className="bg-gray-800 p-6 rounded-md shadow-md w-full max-w-md space-y-4">
+        <h2 className="text-2xl font-bold text-center">Register</h2>
+        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-2 border rounded"
+          className="w-full p-2 rounded bg-gray-700 focus:outline-none"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
         />
-        <textarea
-          placeholder="Tell us about your interests"
-          className="w-full p-2 border rounded"
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full p-2 rounded bg-gray-700 focus:outline-none"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
         />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          Submit
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          className="w-full p-2 rounded bg-gray-700 focus:outline-none"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+        <button type="submit" className="w-full bg-blue-600 p-2 rounded hover:bg-blue-700">
+          Create Account
         </button>
       </form>
-    </section>
+    </div>
   );
 }
-
-export default Register;

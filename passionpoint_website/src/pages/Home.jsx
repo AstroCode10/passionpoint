@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "../components/ui/button.tsx";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom"
 
 export default function HomePage() {
   return (
@@ -46,11 +47,11 @@ export default function HomePage() {
           transition={{ duration: 1.4 }}
           className="mt-10"
         >
-          <a href="/register">
+          <Link to="/register">
             <Button className="text-lg px-8 py-4 bg-white text-black font-semibold hover:bg-gray-200 rounded-2xl shadow-lg">
               Join the Community
             </Button>
-          </a>
+          </Link>
         </motion.div>
       </main>
 
