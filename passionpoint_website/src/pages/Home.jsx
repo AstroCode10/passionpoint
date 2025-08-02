@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 export default function HomePage() {
   return (
-    <div className="relative min-h-screen w-full bg-cover bg-center text-white" style={{ backgroundImage: "url(C:\Users\USER\Downloads\Aurora in the peaks of a mountain.jpg)" }}>
+    <div className="relative min-h-screen w-full bg-cover bg-center text-white" style={{ backgroundImage: "url(src\components\ui\Background image.jpg)" }}>
       {/* Navbar */}
       <header className="absolute top-0 left-0 w-full px-6 py-4 flex justify-between items-center bg-black/40 backdrop-blur-md z-10">
         <div className="text-2xl font-bold">PassionPoint</div>
