@@ -2,7 +2,7 @@ import React from "react"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 // Import your pages
-import Home from "./pages/Home"
+import HomePage from "./pages/Home"
 import Register from "./pages/Register"
 import Login from "./pages/Login"
 import Logout from "./pages/Logout"
@@ -12,7 +12,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
