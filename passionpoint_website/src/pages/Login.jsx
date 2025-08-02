@@ -1,17 +1,54 @@
-// pages/Login.jsx - Placeholder content
-import React from "react";
+// src/pages/Login.jsx
+import React, { useState } from "react"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { auth } from "../firebase"
+import { useNavigate, Link } from "react-router-dom"
 
-const Login = () => {
+function Login() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      navigate("/account") // Or whatever page you want post-login
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Login</h2>
-      <form>
-        <input type="email" placeholder="Email" className="w-full mb-2 p-2 border rounded" />
-        <input type="password" placeholder="Password" className="w-full mb-4 p-2 border rounded" />
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Login</button>
+    <div style={{ maxWidth: "400px", margin: "auto", padding: "20px" }}>
+      <h2>Login</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        /><br />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        /><br />
+        <button type="submit">Login</button>
       </form>
+      <p style={{ marginTop: "10px" }}>
+        Not registered?{" "}
+        <Link to="/register" style={{ color: "blue", textDecoration: "underline" }}>
+          Sign up now!
+        </Link>
+      </p>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
