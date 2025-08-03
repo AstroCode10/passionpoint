@@ -1,12 +1,19 @@
 import React from "react";
 import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const LogoutButton = ({ onLogout }) => {
+  const navigate = useNavigate(); // React Router hook for programmatic navigation
+
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
       onLogout?.();
-      // You can redirect or clear auth tokens here
+
+      // Optional: clear localStorage/sessionStorage if used
+      // localStorage.removeItem("token"); // example
+
       console.log("Logged out");
+      navigate("/login"); // 🔁 redirect to login page
     }
   };
 
@@ -22,3 +29,4 @@ const LogoutButton = ({ onLogout }) => {
 };
 
 export default LogoutButton;
+

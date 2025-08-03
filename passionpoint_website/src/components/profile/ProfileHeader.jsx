@@ -20,12 +20,12 @@ const ProfileHeader = () => {
   };
 
   return (
-    <div className="relative w-full h-64 bg-gray-300 rounded-b-lg overflow-hidden">
+    <div className="relative">
       {/* Banner Image */}
       <img
-        src={banner || "/images/default-banner.jpg"} // Placeholder path
+        src={banner || "/images/banner.png"} // Placeholder path
         alt="Banner"
-        className="object-cover w-full h-full"
+        className="w-full h-48 object-cover rounded-b-lg"
       />
 
       {/* Upload Banner */}
@@ -40,16 +40,15 @@ const ProfileHeader = () => {
       </label>
 
       {/* Profile Picture */}
-      <div className="absolute left-6 -bottom-12">
-        <div className="relative w-24 h-24">
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 flex flex-col items-center">
           <img
-            src={profilePic || "/images/default-profile.jpg"} // Placeholder path
+            src={profilePic || "/images/profile-pic.png"} // Placeholder path
             alt="Profile"
-            className="w-24 h-24 object-cover rounded-full border-4 border-white shadow-lg"
+            className="w-24 h-24 rounded-full border-4 border-white shadow-md"
           />
 
           {/* Upload Profile Pic */}
-          <label className="absolute bottom-0 right-0 bg-white px-1 py-0.5 text-xs rounded-full shadow cursor-pointer">
+          <label className="absolute top-0 right-0 bg-white px-1 py-0.5 text-xs rounded-full shadow cursor-pointer">
             ✏️
             <input
               type="file"
@@ -58,14 +57,9 @@ const ProfileHeader = () => {
               className="hidden"
             />
           </label>
+          <span className="text-white font-semibold mt-2">@{username}</span>
         </div>
       </div>
-
-      {/* Username */}
-      <div className="absolute bottom-2 left-36 text-white text-xl font-semibold drop-shadow-lg">
-        @{username}
-      </div>
-    </div>
   );
 };
 
