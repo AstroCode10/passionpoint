@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { blogData } from "../utils/blogData";
+import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
+import { db } from "../firebase"; // Make sure this path is correct
 import ReactMarkdown from "react-markdown";
 
 const BlogPost = () => {
@@ -8,15 +9,29 @@ const BlogPost = () => {
   const [blog, setBlog] = useState(null);
 
   useEffect(() => {
-    const post = blogData.find((b) => b.id === id);
-    if (post) {
-      // Increase views (mock)
-      post.views += 1;
-      setBlog({ ...post });
-    }
+    const fetchBlogAndUpdateViews = async () => {
+      const blogRef = doc(db, "blogs", id);
+      const blogSnap = await getDoc(blogRef);
+
+      if (blogSnap.exists()) {
+        const blogData = blogSnap.data();
+
+        // Increment the views
+        await updateDoc(blogRef, {
+          views: increment(1)
+        });
+
+        // Update state with new data
+        setBlog({ id: blogSnap.id, ...blogData, views: blogData.views + 1 });
+      } else {
+        console.error("No such blog!");
+      }
+    };
+
+    fetchBlogAndUpdateViews();
   }, [id]);
 
-  if (!blog) return <div className="p-6 text-center text-xl">Blog not found 😢</div>;
+  if (!blog) return <div className="p-6 text-center text-xl">Loading...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow">
@@ -31,7 +46,7 @@ const BlogPost = () => {
       </div>
 
       <div className="mt-6 flex gap-3 flex-wrap">
-        {blog.tags.map((tag) => (
+        {blog.tags?.map((tag) => (
           <span key={tag} className="px-3 py-1 bg-gray-200 rounded-full text-sm">#{tag}</span>
         ))}
       </div>
