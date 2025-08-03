@@ -4,6 +4,17 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const BlogCard = ({ blog }) => {
+  const {
+    bannerImage,
+    title,
+    author,
+    date,
+    content,
+    likes = 0,
+    comments = [], // prevent undefined
+    id
+  } = blog;
+
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
@@ -31,7 +42,7 @@ const BlogCard = ({ blog }) => {
 
         <div className="flex justify-between text-sm text-gray-600">
           <span className="flex items-center gap-1"><Heart size={16} /> {blog.likes}</span>
-          <span className="flex items-center gap-1"><MessageSquare size={16} /> {blog.comments.length}</span>
+          <span className="flex items-center gap-1"><MessageSquare size={16} /> {blog.comments?.length ?? 0}</span>
         </div>
       </div>
     </motion.div>

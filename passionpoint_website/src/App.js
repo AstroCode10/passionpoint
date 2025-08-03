@@ -10,6 +10,7 @@ import Login from "./pages/Login"
 import Logout from "./pages/Logout"
 import Account from "./pages/Account"
 import ResetPassword from "./pages/ResetPassword"
+import CreateBlogForm from "./components/blog/CreateBlogForm";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/logout" element={<Logout />} />
         <Route path="/account" element={<Account />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/create" element={<CreateBlogForm />} />
       </Routes>
     </Router>
   )

@@ -1,42 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import BlogCard from "../components/blog/BlogCard";
 import BlogFilter from "../components/blog/BlogFilter";
 import BlogSort from "../components/blog/BlogSort";
 import BlogSearch from "../components/blog/BlogSearch";
-import { blogData } from "../utils/blogData";
+import useBlogs from "../hooks/useBlog"; // Firebase hook
 
 const Blog = () => {
-  const [blogs, setBlogs] = useState([]);
+  const { blogs, loading } = useBlogs();
   const [sort, setSort] = useState("recent");
   const [category, setCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    let sortedBlogs = [...blogData];
+  const filteredBlogs = useMemo(() => {
+    if (!blogs) return [];
 
-    // Filter by category
+    let result = [...blogs];
+
     if (category !== "All") {
-      sortedBlogs = sortedBlogs.filter((blog) =>
-        blog.category.includes(category)
+      result = result.filter((blog) =>
+        blog.category?.includes(category)
       );
     }
 
-    // Search
     if (searchTerm) {
-      sortedBlogs = sortedBlogs.filter((blog) =>
+      result = result.filter((blog) =>
         blog.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Sort
     if (sort === "popular") {
-      sortedBlogs.sort((a, b) => b.likes - a.likes);
+      result.sort((a, b) => (b.likes || 0) - (a.likes || 0));
     } else {
-      sortedBlogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      result.sort((a, b) => new Date(b.date) - new Date(a.date));
     }
 
-    setBlogs(sortedBlogs);
-  }, [sort, category, searchTerm]);
+    return result;
+  }, [blogs, sort, category, searchTerm]);
 
   return (
     <div className="p-6 max-w-screen-xl mx-auto">
@@ -47,11 +46,15 @@ const Blog = () => {
         <BlogSort sort={sort} setSort={setSort} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {blogs.map((blog) => (
-          <BlogCard key={blog.id} blog={blog} />
-        ))}
-      </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredBlogs.map((blog) => (
+            <BlogCard key={blog.id} blog={blog} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
