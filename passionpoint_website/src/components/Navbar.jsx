@@ -20,6 +20,14 @@ function Navbar() {
     }
   };
 
+  const handleNewBlogClick = () => {
+    if (user) {
+      navigate("/create");
+    } else {
+      navigate("/register");
+    }
+  };
+
   return (
     <nav className="bg-black p-4 text-white flex justify-between items-center">
       {/* Logo + Name */}
@@ -32,7 +40,26 @@ function Navbar() {
       <div className="flex items-center space-x-4">
         <Link to="/">Home</Link>
         <Link to="/about">About Us</Link>
-        <Link to="/blog">Blog</Link>
+
+        {/* Blog Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="text-white hover:bg-gray-800">
+              Blog
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="!bg-black !text-white border-none shadow-lg">
+            <DropdownMenuItem className="!bg-black !text-white !hover:bg-black !hover:text-white !focus:text-white !active:text-white"
+            asChild>
+              <Link to="/blog">View Blogs</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="!bg-black !text-white !hover:bg-black !hover:text-white !focus:text-white !active:text-white"
+            onClick={handleNewBlogClick}>
+              New Blog
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Link to="/forum">Forum</Link>
         <Link to="/register">Register</Link>
 
@@ -44,20 +71,18 @@ function Navbar() {
               <span>Account</span>
             </Button>
           </DropdownMenuTrigger>
-
-          <DropdownMenuContent className="w-48">
+          <DropdownMenuContent className="!bg-black !text-white border-none shadow-lg">
             {user ? (
               <>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem className="!bg-black !text-white !hover:bg-black !hover:text-white !focus:text-white !active:text-white"
+                asChild>
                   <Link to="/account">My Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/create">Create Blog</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
               </>
             ) : (
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem className="!bg-black !text-white !hover:bg-black !hover:text-white !focus:text-white !active:text-white"
+              asChild>
                 <Link to="/login">Login</Link>
               </DropdownMenuItem>
             )}
