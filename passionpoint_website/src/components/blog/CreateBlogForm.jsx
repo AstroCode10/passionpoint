@@ -7,6 +7,17 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
+const categories = [
+  "Science",
+  "Mathematics",
+  "Technology & AI",
+  "Lifestyle",
+  "Books",
+  "History",
+  "Psychology",
+  "Languages",
+];
+
 const CreateBlogForm = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -29,7 +40,7 @@ const CreateBlogForm = () => {
       bannerImage,
       content,
       tags: tags.split(",").map((tag) => tag.trim()),
-      categories: [category],
+      category,
       author: user.displayName || user.email,
       authorId: user.uid,
       date: serverTimestamp(),
@@ -53,6 +64,7 @@ const CreateBlogForm = () => {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-4 space-y-4">
       <h1 className="text-2xl font-bold">Create Blog Post</h1>
+
       <Input
         type="text"
         placeholder="Blog Title"
@@ -60,6 +72,7 @@ const CreateBlogForm = () => {
         onChange={(e) => setTitle(e.target.value)}
         required
       />
+
       <Input
         type="url"
         placeholder="Banner Image URL"
@@ -67,6 +80,7 @@ const CreateBlogForm = () => {
         onChange={(e) => setBannerImage(e.target.value)}
         required
       />
+
       <Textarea
         rows={8}
         placeholder="Blog Content"
@@ -74,19 +88,28 @@ const CreateBlogForm = () => {
         onChange={(e) => setContent(e.target.value)}
         required
       />
+
       <Input
         type="text"
         placeholder="Tags (comma-separated)"
         value={tags}
         onChange={(e) => setTags(e.target.value)}
       />
-      <Input
-        type="text"
-        placeholder="Category"
+
+      <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
         required
-      />
+        className="w-full p-2 rounded-md border border-gray-300 bg-white text-black"
+      >
+        <option value="" disabled>Select a Category</option>
+        {categories.map((cat) => (
+          <option key={cat} value={cat}>
+            {cat}
+          </option>
+        ))}
+      </select>
+
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Publishing..." : "Publish Blog"}
       </Button>
