@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { collection } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
+import { categories } from "../constants/categories"; // your array
 import ForumPostCard from "../components/forum/ForumPostCard";
 
 const Forum = () => {
@@ -42,7 +43,7 @@ const Forum = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold">💬 PassionPoint Forum</h1>
         <Link
-          to="/forum/create"
+          to="/create-forum"
           className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
         >
           ➕ New Post
@@ -64,10 +65,11 @@ const Forum = () => {
           className="border rounded-lg px-3 py-2"
         >
           <option value="All">All</option>
-          <option value="Science">Science</option>
-          <option value="Math">Math</option>
-          <option value="Technology">Technology</option>
-          <option value="Lifestyle">Lifestyle</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
         </select>
         <select
           value={sort}

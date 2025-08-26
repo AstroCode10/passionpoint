@@ -1,22 +1,29 @@
 import React, { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-import { useAuth } from "../hooks/useAuth"; // your auth hook
+import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button.tsx";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { categories } from "../constants/categories";
 
-const CreatePost = () => {
+const CreateForumForm = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("Science");
+  const [category, setCategory] = useState(categories[0]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!user) return <p className="p-4 text-center">Please log in to create a forum post.</p>;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return alert("You must be logged in to create a post!");
+    setIsSubmitting(true);
 
-    await addDoc(collection(db, "forumPosts"), {
+    const post = {
       title,
       content,
       category,
@@ -26,53 +33,57 @@ const CreatePost = () => {
       likes: 0,
       likedBy: [],
       views: 0,
-    });
+    };
 
-    navigate("/forum");
+    try {
+      const docRef = await addDoc(collection(db, "forumPosts"), post);
+      navigate(`/forum/${docRef.id}`);
+    } catch (err) {
+      console.error("Error creating forum post:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow">
-      <h1 className="text-3xl font-bold mb-4">➕ Create a New Post</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Post title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-          required
-        />
-        <textarea
-          placeholder="Write your post content..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 h-40"
-          required
-        />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-        >
-          <option value="Science">Science</option>
-          <option value="Mathematics">Mathematics</option>
-          <option value="Technology & AI">Technology & AI</option>
-          <option value="Lifestyle">Lifestyle</option>
-          <option value="Books">Bookse</option>
-          <option value="History">History</option>
-          <option value="Psychology">Psychology</option>
-          <option value="Languages">Languages</option>
-        </select>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
-        >
-          Post
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-4 space-y-4">
+      <h1 className="text-2xl font-bold">Create Forum Post</h1>
+
+      <Input
+        type="text"
+        placeholder="Post Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        required
+      />
+
+      <Textarea
+        rows={6}
+        placeholder="Post Content"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        required
+      />
+
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        className="w-full p-2 rounded-md border border-gray-300 bg-white text-black"
+        required
+      >
+        {categories.map((cat) => (
+          <option key={cat} value={cat}>
+            {cat}
+          </option>
+        ))}
+      </select>
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Posting..." : "Post"}
+      </Button>
+    </form>
   );
 };
 
-export default CreatePost;
+export default CreateForumForm;
+
