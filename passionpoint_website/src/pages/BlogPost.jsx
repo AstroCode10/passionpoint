@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
-import { db } from "../firebase"; // Make sure this path is correct
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
+import { db } from "../firebase";
 import ReactMarkdown from "react-markdown";
+import { useAuth } from "../hooks/useAuth"; // Assuming you have an auth hook
 
 const BlogPost = () => {
   const { id } = useParams();
+  const { user } = useAuth(); // current logged-in user
   const [blog, setBlog] = useState(null);
+  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     const fetchBlogAndUpdateViews = async () => {
@@ -16,20 +19,46 @@ const BlogPost = () => {
       if (blogSnap.exists()) {
         const blogData = blogSnap.data();
 
-        // Increment the views
-        await updateDoc(blogRef, {
-          views: increment(1)
-        });
+        // Increment views
+        await updateDoc(blogRef, { views: increment(1) });
 
-        // Update state with new data
         setBlog({ id: blogSnap.id, ...blogData, views: blogData.views + 1 });
+
+        // Check if user has liked
+        if (user && blogData.likedBy?.includes(user.uid)) {
+          setLiked(true);
+        }
       } else {
         console.error("No such blog!");
       }
     };
 
     fetchBlogAndUpdateViews();
-  }, [id]);
+  }, [id, user]);
+
+  const handleLike = async () => {
+    if (!user) return alert("You must be logged in to like posts.");
+
+    const blogRef = doc(db, "blogs", id);
+
+    if (liked) {
+      // Unlike
+      await updateDoc(blogRef, {
+        likes: increment(-1),
+        likedBy: arrayRemove(user.uid),
+      });
+      setBlog((prev) => ({ ...prev, likes: prev.likes - 1 }));
+      setLiked(false);
+    } else {
+      // Like
+      await updateDoc(blogRef, {
+        likes: increment(1),
+        likedBy: arrayUnion(user.uid),
+      });
+      setBlog((prev) => ({ ...prev, likes: prev.likes + 1 }));
+      setLiked(true);
+    }
+  };
 
   if (!blog) return <div className="p-6 text-center text-xl">Loading...</div>;
 
@@ -45,10 +74,24 @@ const BlogPost = () => {
         <ReactMarkdown>{blog.content}</ReactMarkdown>
       </div>
 
+      {/* Tags */}
       <div className="mt-6 flex gap-3 flex-wrap">
         {blog.tags?.map((tag) => (
           <span key={tag} className="px-3 py-1 bg-gray-200 rounded-full text-sm">#{tag}</span>
         ))}
+      </div>
+
+      {/* Like button */}
+      <div className="mt-6 flex items-center gap-3">
+        <button
+          onClick={handleLike}
+          className={`px-4 py-2 rounded-lg font-semibold ${
+            liked ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800"
+          }`}
+        >
+          {liked ? "❤️ Liked" : "🤍 Like"}
+        </button>
+        <span>{blog.likes || 0} likes</span>
       </div>
     </div>
   );
