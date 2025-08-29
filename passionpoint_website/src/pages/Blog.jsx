@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import BlogCard from "../components/blog/BlogCard";
 import BlogFilter from "../components/blog/BlogFilter";
 import BlogSort from "../components/blog/BlogSort";
 import BlogSearch from "../components/blog/BlogSearch";
 import useBlogs from "../hooks/useBlog"; // Firebase hook
+import Navbar from "../components/Navbar";
 
 const Blog = () => {
   const { blogs, loading } = useBlogs();
@@ -39,11 +41,23 @@ const Blog = () => {
 
   return (
     <div className="p-6 max-w-screen-xl mx-auto">
-      <h1 className="text-4xl font-bold mb-6">📚 PassionPoint Blog</h1>
-      <div className="flex flex-wrap justify-between gap-4 mb-6">
-        <BlogSearch setSearchTerm={setSearchTerm} />
-        <BlogFilter category={category} setCategory={setCategory} />
-        <BlogSort sort={sort} setSort={setSort} />
+      <Navbar />
+      <div className="pt-20">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-bold">📚 PassionPoint Blog</h1>
+          <Link
+            to="/create-blog"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+          >
+            ➕ New Blog
+          </Link>
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-4 mb-6">
+          <BlogSearch setSearchTerm={setSearchTerm} />
+          <BlogFilter category={category} setCategory={setCategory} />
+          <BlogSort sort={sort} setSort={setSort} />
+        </div>
       </div>
 
       {loading ? (

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // added useNavigate
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
 import { db } from "../firebase";
 import ReactMarkdown from "react-markdown";
-import { useAuth } from "../hooks/useAuth"; // Assuming you have an auth hook
+import { useAuth } from "../hooks/useAuth";
+import { ArrowLeft } from "lucide-react";
 
 const BlogPost = () => {
   const { id } = useParams();
-  const { user } = useAuth(); // current logged-in user
+  const navigate = useNavigate(); // hook
+  const { user } = useAuth();
   const [blog, setBlog] = useState(null);
   const [liked, setLiked] = useState(false);
 
@@ -18,13 +20,9 @@ const BlogPost = () => {
 
       if (blogSnap.exists()) {
         const blogData = blogSnap.data();
-
-        // Increment views
         await updateDoc(blogRef, { views: increment(1) });
-
         setBlog({ id: blogSnap.id, ...blogData, views: blogData.views + 1 });
 
-        // Check if user has liked
         if (user && blogData.likedBy?.includes(user.uid)) {
           setLiked(true);
         }
@@ -38,11 +36,9 @@ const BlogPost = () => {
 
   const handleLike = async () => {
     if (!user) return alert("You must be logged in to like posts.");
-
     const blogRef = doc(db, "blogs", id);
 
     if (liked) {
-      // Unlike
       await updateDoc(blogRef, {
         likes: increment(-1),
         likedBy: arrayRemove(user.uid),
@@ -50,7 +46,6 @@ const BlogPost = () => {
       setBlog((prev) => ({ ...prev, likes: prev.likes - 1 }));
       setLiked(false);
     } else {
-      // Like
       await updateDoc(blogRef, {
         likes: increment(1),
         likedBy: arrayUnion(user.uid),
@@ -63,7 +58,16 @@ const BlogPost = () => {
   if (!blog) return <div className="p-6 text-center text-xl">Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow">
+    <div className="relative max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow">
+      {/* Back to Blogs Button */}
+      <button
+        onClick={() => navigate("/blog")}
+        className="absolute top-4 right-4 px-4 py-2 bg-black text-white rounded-lg shadow hover:bg-gray-800 space-x-2 flex items-center"
+      >
+        <ArrowLeft className="w-5 h-5 cursor-pointer" />
+        Back to Blogs
+      </button>
+
       <img src={blog.bannerImage} alt={blog.title} className="w-full h-64 object-cover rounded-xl mb-4" />
       <h1 className="text-4xl font-bold mb-2">{blog.title}</h1>
       <p className="text-sm text-gray-500 mb-6">
@@ -74,14 +78,12 @@ const BlogPost = () => {
         <ReactMarkdown>{blog.content}</ReactMarkdown>
       </div>
 
-      {/* Tags */}
       <div className="mt-6 flex gap-3 flex-wrap">
         {blog.tags?.map((tag) => (
           <span key={tag} className="px-3 py-1 bg-gray-200 rounded-full text-sm">#{tag}</span>
         ))}
       </div>
 
-      {/* Like button */}
       <div className="mt-6 flex items-center gap-3">
         <button
           onClick={handleLike}
@@ -98,3 +100,4 @@ const BlogPost = () => {
 };
 
 export default BlogPost;
+

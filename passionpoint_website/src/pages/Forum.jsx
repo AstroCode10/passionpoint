@@ -5,6 +5,7 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../firebase";
 import { categories } from "../constants/categories"; // your array
 import ForumPostCard from "../components/forum/ForumPostCard";
+import Navbar from "../components/Navbar";
 
 const Forum = () => {
   const [sort, setSort] = useState("recent");
@@ -40,14 +41,17 @@ const Forum = () => {
 
   return (
     <div className="p-6 max-w-screen-xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-bold">💬 PassionPoint Forum</h1>
-        <Link
-          to="/create-forum"
-          className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
-        >
-          ➕ New Post
-        </Link>
+      <Navbar />
+      <div className="pt-20">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-bold">💬 PassionPoint Forum</h1>
+          <Link
+            to="/create-forum"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+          >
+            ➕ New Post
+          </Link>
+        </div>
       </div>
 
       {/* Controls */}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "../ui/button.tsx";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { ArrowLeft } from "lucide-react";
 import { db } from "../../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../../hooks/useAuth";
@@ -62,7 +63,17 @@ const CreateBlogForm = () => {
   if (!user) return <p className="p-4 text-center">Please log in to create a blog post.</p>;
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-4 space-y-4">
+    <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto p-4 space-y-4">
+      {/* Back to Blogs Button */}
+      <button
+        type="button"
+        onClick={() => navigate("/blog")}
+        className="absolute top-4 right-4 px-4 py-2 bg-black text-white rounded-lg shadow hover:bg-gray-800 space-x-2 flex items-center"
+      >
+        <ArrowLeft className="w-5 h-5 cursor-pointer" />
+        Back to Blogs
+      </button>
+
       <h1 className="text-2xl font-bold">Create Blog Post</h1>
 
       <Input
@@ -118,3 +129,4 @@ const CreateBlogForm = () => {
 };
 
 export default CreateBlogForm;
+
