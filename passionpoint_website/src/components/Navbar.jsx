@@ -35,6 +35,26 @@ function Navbar() {
     }
   };
 
+  // View blogs: consistent route
+  const viewBlogs = () => {
+      navigate("/blog");
+  };
+
+  // View forums: consistent route
+  const viewForums = () => {
+      navigate("/forum");
+  };
+
+  // View account/profile
+  const viewAccount = () => {
+      navigate("/account");
+  };
+
+  // View login
+  const viewLogin = () => {
+      navigate("/login");
+  };  
+
   // New blog: consistent route
   const handleNewBlogClick = () => {
     if (user) {
@@ -43,6 +63,17 @@ function Navbar() {
       navigate("/register");
     }
   };
+
+  // New Forum: consistent route
+  const handleNewForumClick = () => {
+    if (user) {
+      navigate("/create-forum");
+    } else {
+      navigate("/register");
+    }
+  };
+
+  
 
   /**
    * Smooth scroll helper:
@@ -93,40 +124,67 @@ function Navbar() {
           About Us
         </Button>
 
-        {/* Blog Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button  className="text-white hover:text-gray-300" aria-haspopup="menu">
-              Blog
+      {/* Blog Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="text-white hover:text-gray-300" aria-haspopup="menu">
+            Blog
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent 
+          className="!bg-black !text-white border-none shadow-lg min-w-[160px]"
+        >
+          <DropdownMenuItem asChild>
+            <Button
+              onClick={viewBlogs}
+              className="!bg-black w-full block px-2 py-2 text-white hover:text-gray-300 mb-1"
+            >
+              View Blogs
             </Button>
-          </DropdownMenuTrigger>
+          </DropdownMenuItem>
 
-          {/* simplified styling — avoid force-override (!) usage */}
-          <DropdownMenuContent className="bg-black text-white border-none shadow-lg min-w-[160px]">
-            <DropdownMenuItem asChild>
-              <NavLink to="/blog" className="w-full block px-3 py-2 hover:bg-gray-900 rounded-sm">
-                View Blogs
-              </NavLink>
-            </DropdownMenuItem>
-
-            {/* New Blog uses logic that checks auth and routes appropriately */}
-            <DropdownMenuItem>
-              <button
-                onClick={handleNewBlogClick}
-                className="w-full text-left px-3 py-2 hover:bg-gray-900 rounded-sm"
-              >
-                New Blog
-              </button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <DropdownMenuItem asChild>
+            <Button
+              onClick={handleNewBlogClick}
+              className="!bg-black w-full text-left px-2 py-2 text-white hover:text-gray-300"
+            >
+              New Blog
+            </Button>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
         {/* Forum (use NavLink to get active styling) */}
-        <Button className="text-white hover:text-gray-300" aria-haspopup="menu">
-          <NavLink to="/forum" className={navLinkClass}>
+        <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="text-white hover:text-gray-300" aria-haspopup="menu">
             Forum
-          </NavLink>
-        </Button>
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent 
+          className="!bg-black !text-white border-none shadow-lg min-w-[160px]"
+        >
+          <DropdownMenuItem asChild>
+            <Button
+              onClick={viewForums}
+              className="!bg-black w-full block px-2 py-2 text-white hover:text-gray-300 mb-1"
+            >
+              View Forums
+            </Button>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Button
+              onClick={handleNewForumClick}
+              className="!bg-black w-full text-left px-2 py-2 text-white hover:text-gray-300"
+            >
+              New Forum
+            </Button>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
         {/* Register: hide when logged in */}
         {!user && (
@@ -141,7 +199,7 @@ function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              className="flex items-center gap-1 text-white hover:bg-gray-800"
+              className="flex items-center gap-1 text-white !hover:bg-gray-300"
               aria-label="Account menu"
               aria-haspopup="menu"
             >
@@ -150,26 +208,36 @@ function Navbar() {
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="bg-black text-white border-none shadow-lg min-w-[160px]">
+          <DropdownMenuContent className="!bg-black !text-white border-none shadow-lg min-w-[160px]">
             {user ? (
               <>
                 <DropdownMenuItem asChild>
-                  <NavLink to="/account" className="w-full block px-3 py-2 hover:bg-gray-900 rounded-sm">
+                  <Button
+                    onClick={viewAccount}
+                    className="!bg-black w-full block px-1 py-1 text-white hover:text-gray-300 mb-1"
+                  >
                     My Profile
-                  </NavLink>
+                  </Button>
+                  
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-900 rounded-sm">
+                <DropdownMenuItem asChild>
+                  <Button
+                    onClick={handleLogout}
+                    className="!bg-black w-full block px-1 py-1 text-white hover:text-gray-300"
+                  >
                     Logout
-                  </button>
+                  </Button>
                 </DropdownMenuItem>
               </>
             ) : (
               <DropdownMenuItem asChild>
-                <NavLink to="/login" className="w-full block px-3 py-2 hover:bg-gray-900 rounded-sm">
-                  Login
-                </NavLink>
-              </DropdownMenuItem>
+                  <Button
+                    onClick={viewLogin}
+                    className="!bg-black w-full block px-1 py-1 text-white hover:text-gray-300"
+                  >
+                    Login
+                  </Button>
+                </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button.tsx";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
+import { ArrowLeft } from "lucide-react";
 import { categories } from "../constants/categories";
 
 const CreateForumForm = () => {
@@ -47,6 +48,16 @@ const CreateForumForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-4 space-y-4">
+      {/* Back to Blogs Button */}
+      <button
+        type="button"
+        onClick={() => navigate("/forum")}
+        className="absolute top-4 right-4 px-4 py-2 bg-black text-white rounded-lg shadow hover:bg-gray-800 space-x-2 flex items-center"
+      >
+        <ArrowLeft className="w-5 h-5 cursor-pointer" />
+        Back to Forums
+      </button>
+
       <h1 className="text-2xl font-bold">Create Forum Post</h1>
 
       <Input
