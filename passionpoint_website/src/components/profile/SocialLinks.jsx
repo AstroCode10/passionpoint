@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { auth, db } from "../../firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import {
   FaInstagram,
   FaLinkedin,
@@ -29,13 +32,47 @@ const defaultLinks = {
 const SocialLinks = () => {
   const [links, setLinks] = useState(defaultLinks);
   const [editing, setEditing] = useState(false);
-  const [tempLinks, setTempLinks] = useState(links);
+  const [tempLinks, setTempLinks] = useState(defaultLinks);
+  const [user, setUser] = useState(null);
+
+  // Listen to auth and fetch links
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        const userRef = doc(db, "users", currentUser.uid);
+        const snap = await getDoc(userRef);
+
+        if (snap.exists()) {
+          const data = snap.data();
+          const storedLinks = data.socialLinks || defaultLinks;
+          setLinks(storedLinks);
+          setTempLinks(storedLinks);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleChange = (platform, value) => {
     setTempLinks({ ...tempLinks, [platform]: value });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+
+    await setDoc(
+      userRef,
+      {
+        socialLinks: tempLinks,
+        updatedAt: new Date(),
+      },
+      { merge: true }
+    );
+
     setLinks(tempLinks);
     setEditing(false);
   };
@@ -112,3 +149,5 @@ const SocialLinks = () => {
 };
 
 export default SocialLinks;
+
+

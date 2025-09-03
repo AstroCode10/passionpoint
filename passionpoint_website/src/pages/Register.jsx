@@ -1,12 +1,12 @@
-// pages/Register.jsx - Placeholder content
 // Register.jsx
 import React, { useState } from 'react';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function Register() {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -22,11 +22,16 @@ export default function Register() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Set role in Firestore
+      // Create Firestore user doc
       await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
         email: user.email,
+        username: username, // <-- from input field
         role: 'member',
-        createdAt: new Date(),
+        profilePic: null, // default until uploaded
+        banner: null,     // default until uploaded
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
 
       alert('Account created! 🎉');
@@ -40,6 +45,17 @@ export default function Register() {
       <form onSubmit={handleRegister} className="bg-gray-800 p-6 rounded-md shadow-md w-full max-w-md space-y-4">
         <h2 className="text-2xl font-bold text-center">Register</h2>
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+
+        {/* Username field */}
+        <input
+          type="text"
+          placeholder="Username"
+          className="w-full p-2 rounded bg-gray-700 focus:outline-none"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+
         <input
           type="email"
           placeholder="Email"
@@ -48,6 +64,7 @@ export default function Register() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+
         <input
           type="password"
           placeholder="Password"
@@ -56,6 +73,7 @@ export default function Register() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+
         <input
           type="password"
           placeholder="Confirm Password"
@@ -64,6 +82,7 @@ export default function Register() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
+
         <button type="submit" className="w-full bg-blue-600 p-2 rounded hover:bg-blue-700">
           Create Account
         </button>
@@ -71,3 +90,5 @@ export default function Register() {
     </div>
   );
 }
+
+

@@ -2,56 +2,64 @@ import React, { useEffect, useState } from "react";
 import { auth, db, storage } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { onAuthStateChanged } from "firebase/auth";
 
 const ProfileHeader = () => {
   const [banner, setBanner] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [username, setUsername] = useState("Loading...");
 
-  const user = auth.currentUser;
+  const [user, setUser] = useState(null);
 
-  // Load user profile data from Firestore
+  // Fetch user profile data
+  const fetchProfile = async (user) => {
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (snap.exists()) {
+      const data = snap.data();
+      setUsername(data.username || user.displayName || "anonymous");
+      setProfilePic(data.profilePic || null);
+      setBanner(data.banner || null);
+    } else {
+      await setDoc(userRef, {
+        username: user.displayName || "new_user",
+        profilePic: null,
+        banner: null,
+      });
+      setUsername(user.displayName || "new_user");
+    }
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (currentUser) {
+      setUser(currentUser);       // store the logged-in user
+      fetchProfile(currentUser);  // fetch their profile
+    }
+  });
 
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
-
-      if (snap.exists()) {
-        const data = snap.data();
-        setUsername(data.username || user.displayName || "anonymous");
-        setProfilePic(data.profilePic || null);
-        setBanner(data.banner || null);
-      } else {
-        // If no doc exists, create one
-        await setDoc(userRef, {
-          username: user.displayName || "new_user",
-          profilePic: null,
-          banner: null,
-        });
-        setUsername(user.displayName || "new_user");
-      }
-    };
-
-    fetchProfile();
-  }, [user]);
+  return () => unsubscribe(); // cleanup listener on unmount
+}, []); // run once
 
   // Upload helper
   const uploadFile = async (file, type) => {
-    if (!user || !file) return null;
+  if (!user || !file) return null;  // use the state instead of auth.currentUser
 
-    const path = `users/${user.uid}/${type}.jpg`;
-    const storageRef = ref(storage, path);
+  const path = `users/${user.uid}/${type}.jpg`;
+  const storageRef = ref(storage, path);
 
-    await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef);
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
 
-    const userRef = doc(db, "users", user.uid);
-    await setDoc(userRef, { [type]: url }, { merge: true });
+  const userRef = doc(db, "users", user.uid);
+  await setDoc(userRef, { [type]: url }, { merge: true });
 
-    return url;
-  };
+  return url;
+};
+
 
   // Banner Upload
   const handleBannerUpload = async (e) => {
@@ -69,13 +77,12 @@ const ProfileHeader = () => {
       const url = await uploadFile(file, "profilePic");
       setProfilePic(url);
     }
-  };
-
+  }
   return (
     <div className="relative">
       {/* Banner Image */}
       <img
-        src={banner || "/images/banner.png"}
+        src={banner || "/images/default-banner.png"}
         alt="Banner"
         className="w-full h-48 object-cover rounded-b-lg"
       />
@@ -95,7 +102,7 @@ const ProfileHeader = () => {
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 flex flex-col items-center">
         <div className="relative">
           <img
-            src={profilePic || "/images/profile-pic.png"}
+            src={profilePic || "/images/default-profile.png"}
             alt="Profile"
             className="w-24 h-24 rounded-full border-4 border-white shadow-md"
           />

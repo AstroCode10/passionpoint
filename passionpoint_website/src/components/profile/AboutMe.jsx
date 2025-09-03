@@ -1,13 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { auth, db } from "../../firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 const AboutMe = () => {
   const [aboutMe, setAboutMe] = useState("This is a short bio about me...");
   const [editing, setEditing] = useState(false);
-  const [tempBio, setTempBio] = useState(aboutMe);
+  const [tempBio, setTempBio] = useState("");
+  const [user, setUser] = useState(null);
 
   const maxChars = 150;
 
-  const handleSave = () => {
+  // Listen to auth and fetch bio
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        const userRef = doc(db, "users", currentUser.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          const storedBio = data.aboutMe || "This is a short bio about me...";
+          setAboutMe(storedBio);
+          setTempBio(storedBio);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(
+      userRef,
+      { aboutMe: tempBio, updatedAt: new Date() },
+      { merge: true }
+    );
+
     setAboutMe(tempBio);
     setEditing(false);
   };
