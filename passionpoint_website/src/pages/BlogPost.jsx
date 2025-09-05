@@ -20,7 +20,12 @@ const BlogPost = () => {
 
       if (blogSnap.exists()) {
         const blogData = blogSnap.data();
-        await updateDoc(blogRef, { views: increment(1) });
+        try {
+          await updateDoc(blogRef, { views: increment(1) });
+        } catch (err) {
+          console.error("Views update failed:", err);
+        }
+
         setBlog({ id: blogSnap.id, ...blogData, views: blogData.views + 1 });
 
         if (user && blogData.likedBy?.includes(user.uid)) {
@@ -39,10 +44,15 @@ const BlogPost = () => {
     const blogRef = doc(db, "blogs", id);
 
     if (liked) {
-      await updateDoc(blogRef, {
-        likes: increment(-1),
-        likedBy: arrayRemove(user.uid),
-      });
+      try {
+        await updateDoc(blogRef, {
+          likes: increment(-1),
+          likedBy: arrayRemove(user.uid),
+        });
+      } catch (err) {
+        console.error("Likes update failed:", err);
+      }
+      
       setBlog((prev) => ({ ...prev, likes: prev.likes - 1 }));
       setLiked(false);
     } else {

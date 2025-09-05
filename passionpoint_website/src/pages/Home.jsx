@@ -3,9 +3,22 @@ import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button.tsx";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
+import { db } from "../firebase"; // <-- make sure you have firebase.js set up
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState("hero");
+
+  // Contact form state
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+
+  // Recruitment form state
+  const [recruitEmail, setRecruitEmail] = useState("");
+  const [recruitUsername, setRecruitUsername] = useState("");
+  const [recruitRole, setRecruitRole] = useState("");
+  const [recruitExperience, setRecruitExperience] = useState("");
 
   // Smooth scroll helper
   const scrollToSection = (id) => {
@@ -34,6 +47,46 @@ export default function HomePage() {
   const fadeInVariant = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 1 } },
+  };
+
+  // Handle Contact Form Submit
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await addDoc(collection(db, "contacts"), {
+        username: contactName,
+        email: contactEmail,
+        message: contactMessage,
+        createdAt: serverTimestamp(),
+      });
+      alert("Message sent!");
+      setContactName("");
+      setContactEmail("");
+      setContactMessage("");
+    } catch (err) {
+      console.error("Error submitting contact form:", err);
+    }
+  };
+
+  // Handle Recruitment Form Submit
+  const handleRecruitSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await addDoc(collection(db, "recruitments"), {
+        email: recruitEmail,
+        username: recruitUsername,
+        role: recruitRole,
+        experience: recruitExperience,
+        createdAt: serverTimestamp(),
+      });
+      alert("Application submitted!");
+      setRecruitEmail("");
+      setRecruitUsername("");
+      setRecruitRole("");
+      setRecruitExperience("");
+    } catch (err) {
+      console.error("Error submitting recruitment form:", err);
+    }
   };
 
   return (
@@ -108,23 +161,35 @@ export default function HomePage() {
           </p>
 
           {/* Contact Form */}
-          <form className="mt-8 space-y-4 text-left">
+          <form
+            onSubmit={handleContactSubmit}
+            className="mt-8 space-y-4 text-left"
+          >
             <input
               type="text"
               placeholder="Your Name"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
               className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
             />
             <input
               type="email"
               placeholder="Your Email"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
               className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
             />
             <textarea
               placeholder="Your Message"
               rows="4"
+              value={contactMessage}
+              onChange={(e) => setContactMessage(e.target.value)}
               className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
             ></textarea>
-            <Button className="w-full bg-white text-black font-semibold hover:bg-gray-200 rounded-lg py-2">
+            <Button
+              type="submit"
+              className="w-full bg-white text-black font-semibold hover:bg-gray-200 rounded-lg py-2"
+            >
               Send Message
             </Button>
           </form>
@@ -138,28 +203,42 @@ export default function HomePage() {
             </p>
 
             {/* Join Our Team Form */}
-            <form className="mt-6 space-y-4 text-left">
+            <form
+              onSubmit={handleRecruitSubmit}
+              className="mt-6 space-y-4 text-left"
+            >
               <input
                 type="email"
                 placeholder="Your Email"
+                value={recruitEmail}
+                onChange={(e) => setRecruitEmail(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
               />
               <input
                 type="text"
                 placeholder="Username"
+                value={recruitUsername}
+                onChange={(e) => setRecruitUsername(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
               />
               <input
                 type="text"
                 placeholder="Role you’re applying for"
+                value={recruitRole}
+                onChange={(e) => setRecruitRole(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
               />
               <textarea
                 placeholder="Your experience in this role"
                 rows="3"
+                value={recruitExperience}
+                onChange={(e) => setRecruitExperience(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
               ></textarea>
-              <Button className="w-full bg-white text-black font-semibold hover:bg-gray-200 rounded-lg py-2">
+              <Button
+                type="submit"
+                className="w-full bg-white text-black font-semibold hover:bg-gray-200 rounded-lg py-2"
+              >
                 Apply Now
               </Button>
             </form>
@@ -191,6 +270,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 

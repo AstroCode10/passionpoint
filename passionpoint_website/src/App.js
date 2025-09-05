@@ -14,6 +14,7 @@ import CreateBlogForm from "./components/blog/CreateBlogForm";
 import Forum from "./pages/Forum";
 import CreateForumPost from "./pages/CreateForumPost";
 import ForumPost from "./pages/ForumPost";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -30,7 +31,8 @@ function App() {
         <Route path="/create-blog" element={<CreateBlogForm />} />
         <Route path="/forum" element={<Forum />} />
         <Route path="/create-forum" element={<CreateForumPost />} />
-        <Route path="/forum/:id" element={<ForumPost />} />  {/* <-- dynamic post page */}
+        <Route path="/forum/:id" element={<ForumPost />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
     </Router>
   )

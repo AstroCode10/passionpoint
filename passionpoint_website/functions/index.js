@@ -1,56 +1,65 @@
-const functions = require("firebase-functions");
-const sgMail = require("@sendgrid/mail");
+const {onDocumentCreated} = require("firebase-functions/v2/firestore");
+const {setGlobalOptions} = require("firebase-functions/v2/options");
+const admin = require("firebase-admin");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-// Set your SendGrid API key here (secure way: use Firebase environment config)
-sgMail.setApiKey(functions.config().sendgrid.key);
+// Init Admin SDK
+admin.initializeApp();
 
-// Contact Message Trigger
-exports.sendContactEmail = functions.firestore
-  .document("contacts/{docId}")
-  .onCreate(async (snap, context) => {
-    const data = snap.data();
+// Optional: set defaults (e.g., region, memory, timeout)
+setGlobalOptions({region: "us-central1"});
 
-    const msg = {
-      to: "sathisumds@gmail.com", // Your email
-      from: "no-reply@passionpoint.com", // Verified sender in SendGrid
-      subject: `New Contact Message from ${data.name}`,
-      text: `
-Name: ${data.name}
-Email: ${data.email}
-Message: ${data.message}
-      `,
-    };
+// Gmail transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_EMAIL,
+    pass: process.env.GMAIL_PASS,
+  },
+});
 
-    try {
-      await sgMail.send(msg);
-      console.log("Contact email sent!");
-    } catch (error) {
-      console.error("Error sending contact email:", error);
-    }
-  });
+// Contact Form Trigger
+exports.sendContactEmail = onDocumentCreated("contacts/{docId}",
+    async (event) => {
+      const data = event.data.data(); // snapshot in v2
 
-// Recruitment Application Trigger
-exports.sendRecruitmentEmail = functions.firestore
-  .document("recruitments/{docId}")
-  .onCreate(async (snap, context) => {
-    const data = snap.data();
+      const mailOptions = {
+        from: `"${data.username}" <noreply@passionpointsocial.com>`,
+        to: process.env.GMAIL_EMAIL,
+        subject: `New Contact Message from ${data.username}`,
+        text: `Name: ${data.username}
+          Email: ${data.email}
+          Message: ${data.message}`,
+      };
 
-    const msg = {
-      to: "sathisumds@gmail.com",
-      from: "no-reply@passionpoint.com",
-      subject: `New Recruitment Application - ${data.role}`,
-      text: `
-Username: ${data.username}
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log("Contact email sent!");
+      } catch (error) {
+        console.error("Error sending contact email:", error);
+      }
+    });
+
+// Recruitment Form Trigger
+exports.sendRecruitmentEmail = onDocumentCreated("recruitments/{docId}",
+    async (event) => {
+      const data = event.data.data();
+
+      const mailOptions = {
+        from: `"${data.username}" <no-reply@passionpointsocial.com>`,
+        to: process.env.GMAIL_EMAIL,
+        subject: `New Recruitment Application - ${data.role}`,
+        text: `Username: ${data.username}
 Email: ${data.email}
 Role: ${data.role}
-Experience: ${data.experience}
-      `,
-    };
+Experience: ${data.experience}`,
+      };
 
-    try {
-      await sgMail.send(msg);
-      console.log("Recruitment email sent!");
-    } catch (error) {
-      console.error("Error sending recruitment email:", error);
-    }
-  });
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log("Recruitment email sent!");
+      } catch (error) {
+        console.error("Error sending recruitment email:", error);
+      }
+    });
