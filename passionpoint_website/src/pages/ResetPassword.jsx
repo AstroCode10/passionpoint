@@ -1,56 +1,67 @@
-// pages/ResetPassword.jsx
-import React, { useState } from 'react';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { getAuth, confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 
-export default function ResetPassword() {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+const ResetPassword = () => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [oobCodeValid, setOobCodeValid] = useState(false);
 
-  const handleReset = async (e) => {
-    e.preventDefault();
 
-    if (!email) return setError('Please enter your email.');
+  const oobCode = searchParams.get("oobCode");
 
+  useEffect(() => {
+  if (!oobCode) return;
+
+  const auth = getAuth();
+  verifyPasswordResetCode(auth, oobCode)
+    .then(() => setOobCodeValid(true))
+    .catch(() => setError("Invalid or expired link."));
+}, [oobCode]);
+
+  const handleReset = async () => {
+    if (!password) return setError("Password cannot be empty");
+    const auth = getAuth();
     try {
-      await sendPasswordResetEmail(auth, email);
-      setMessage('Reset link sent to your email.');
-      setTimeout(() => navigate('/login'), 4000); // Redirect after 4s
+      await confirmPasswordReset(auth, oobCode, password);
+      alert("Password reset successful!");
+      navigate("/login");
     } catch (err) {
-      setError('Could not send reset link. Please try again.');
+      setError(err.message);
     }
   };
 
+if (!oobCode) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-      <form
-        onSubmit={handleReset}
-        className="bg-gray-800 p-6 rounded-md shadow-md w-full max-w-md space-y-4"
-      >
-        <h2 className="text-2xl font-bold text-center">Reset Password</h2>
-
-        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-        {message && <p className="text-green-400 text-sm text-center">{message}</p>}
-
-        <input
-          type="email"
-          placeholder="Enter your email"
-          className="w-full p-2 rounded bg-gray-700 focus:outline-none"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 p-2 rounded hover:bg-blue-700"
-        >
-          Send Reset Link
-        </button>
-      </form>
-    </div>
+    <p className="p-8 text-center">
+      Please open the password reset link from your email.
+    </p>
   );
 }
+
+return (
+  <div className="p-8 max-w-md mx-auto">
+    <h2 className="text-2xl mb-4">Reset Password</h2>
+    {error && <p className="text-red-500">{error}</p>}
+    <input
+      type="password"
+      placeholder="New password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="border p-2 mb-4 w-full"
+    />
+    <button
+      onClick={handleReset}
+      className="bg-blue-500 text-white px-4 py-2 rounded"
+    >
+      Reset Password
+    </button>
+  </div>
+);
+
+};
+
+export default ResetPassword;
+
