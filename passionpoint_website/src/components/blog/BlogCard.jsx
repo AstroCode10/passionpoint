@@ -26,7 +26,7 @@ const BlogCard = ({ blog }) => {
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-2">{blog.title}</h2>
         <p className="text-sm text-gray-500 mb-2">
-          By {blog.author} | {new Date(blog.date).toLocaleDateString()}
+          By {blog.author} | {new Date(blog.date.toDate()).toLocaleDateString()}
         </p>
 
         <p className="text-gray-700 mb-4">

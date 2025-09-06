@@ -7,6 +7,7 @@ import BlogSearch from "../components/blog/BlogSearch";
 import useBlogs from "../hooks/useBlog"; // Firebase hook
 import Navbar from "../components/Navbar";
 
+
 const Blog = () => {
   const { blogs, loading } = useBlogs();
   const [sort, setSort] = useState("recent");

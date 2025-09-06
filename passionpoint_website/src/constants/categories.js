@@ -4,8 +4,10 @@ export const categories = [
   "Mathematics",
   "Technology & AI",
   "Lifestyle",
+  "Sports",
+  "Travel",
+  "Arts & Culture",
   "Books",
   "History",
-  "Psychology",
   "Languages",
 ];

@@ -28,9 +28,9 @@ exports.sendContactEmail = onDocumentCreated("contacts/{docId}",
         from: `"${data.username}" <noreply@passionpointsocial.com>`,
         to: process.env.GMAIL_EMAIL,
         subject: `New Contact Message from ${data.username}`,
-        text: `Name: ${data.username}
-          Email: ${data.email}
-          Message: ${data.message}`,
+        text: `Name:   ${data.username}
+Email: ${data.email}
+Message: ${data.message}`,
       };
 
       try {
@@ -53,7 +53,8 @@ exports.sendRecruitmentEmail = onDocumentCreated("recruitments/{docId}",
         text: `Username: ${data.username}
 Email: ${data.email}
 Role: ${data.role}
-Experience: ${data.experience}`,
+Experience: ${data.experience}
+Contribution: ${data.contribution}`,
       };
 
       try {

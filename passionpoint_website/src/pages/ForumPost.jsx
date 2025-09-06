@@ -32,33 +32,33 @@ const ForumPost = () => {
 
   // Fetch post
   useEffect(() => {
-  const fetchPost = async () => {
-    const postRef = doc(db, "forumPosts", id);
-    const docSnap = await getDoc(postRef);
+    const fetchPost = async () => {
+      const postRef = doc(db, "forumPosts", id);
+      const docSnap = await getDoc(postRef);
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      setPost(data);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setPost(data);
 
-      // Only increment views once per user
-      const userId = user?.uid || "guest";
-      if (!data.viewedBy?.includes(userId)) {
-        await updateDoc(postRef, {
-          views: increment(1),
-          viewedBy: arrayUnion(userId), // track who viewed
-        });
-        setPost((prev) => ({
-          ...prev,
-          views: (prev.views || 0) + 1,
-          viewedBy: [...(prev.viewedBy || []), userId],
-        }));
+        // Only increment views once per user
+        const userId = user?.uid || "guest";
+        if (!data.viewedBy?.includes(userId)) {
+          await updateDoc(postRef, {
+            views: increment(1),
+            viewedBy: arrayUnion(userId), // track who viewed
+          });
+          setPost((prev) => ({
+            ...prev,
+            views: (prev.views || 0) + 1,
+            viewedBy: [...(prev.viewedBy || []), userId],
+          }));
+        }
       }
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    };
 
-  fetchPost();
-}, [id, user]);
+    fetchPost();
+  }, [id, user]);
 
   // Listen to comments subcollection
   useEffect(() => {
@@ -66,7 +66,10 @@ const ForumPost = () => {
     const q = query(commentsRef, orderBy("date", "asc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedComments = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const loadedComments = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setComments(loadedComments);
     });
 
@@ -77,16 +80,25 @@ const ForumPost = () => {
     e.preventDefault();
     if (!user || !comment.trim()) return;
 
-    const commentsRef = collection(db, "forumPosts", id, "comments");
+    try {
+      // ✅ Fetch username from Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      const username = userDoc.exists() ? userDoc.data().username : "Anonymous";
 
-    await addDoc(commentsRef, {
-      text: comment,
-      authorId: user.uid,
-      authorName: user.displayName || "Anonymous",
-      date: serverTimestamp(),
-    });
+      const commentsRef = collection(db, "forumPosts", id, "comments");
 
-    setComment("");
+      await addDoc(commentsRef, {
+        text: comment,
+        authorId: user.uid,
+        authorName: username,
+        date: serverTimestamp(),
+      });
+
+      setComment("");
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
   };
 
   if (loading) return <p className="p-4 text-center">Loading...</p>;
@@ -115,7 +127,8 @@ const ForumPost = () => {
           <div key={c.id} className="border-b pb-2">
             <p className="text-gray-800">{c.text}</p>
             <p className="text-sm text-gray-500">
-              {c.authorName || "Anonymous"} • {c.date?.toDate()?.toLocaleString() || "Just now"}
+              {c.authorName || "Anonymous"} •{" "}
+              {c.date?.toDate()?.toLocaleString() || "Just now"}
             </p>
           </div>
         ))}
@@ -139,5 +152,6 @@ const ForumPost = () => {
 };
 
 export default ForumPost;
+
 
 

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { db } from "../firebase"; // <-- make sure you have firebase.js set up
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { roles } from "../constants/roles";
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState("hero");
@@ -19,6 +20,8 @@ export default function HomePage() {
   const [recruitUsername, setRecruitUsername] = useState("");
   const [recruitRole, setRecruitRole] = useState("");
   const [recruitExperience, setRecruitExperience] = useState("");
+  const [contribution, setContribution] = useState("");
+  const [customRole, setCustomRole] = useState("");
 
   // Smooth scroll helper
   const scrollToSection = (id) => {
@@ -75,8 +78,9 @@ export default function HomePage() {
       await addDoc(collection(db, "recruitments"), {
         email: recruitEmail,
         username: recruitUsername,
-        role: recruitRole,
+        role: recruitRole === "Other (please specify)" ? customRole : recruitRole,
         experience: recruitExperience,
+        contribution: contribution,
         createdAt: serverTimestamp(),
       });
       alert("Application submitted!");
@@ -84,6 +88,7 @@ export default function HomePage() {
       setRecruitUsername("");
       setRecruitRole("");
       setRecruitExperience("");
+      setContribution("");
     } catch (err) {
       console.error("Error submitting recruitment form:", err);
     }
@@ -221,13 +226,42 @@ export default function HomePage() {
                 onChange={(e) => setRecruitUsername(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
               />
-              <input
-                type="text"
-                placeholder="Role you’re applying for"
-                value={recruitRole}
-                onChange={(e) => setRecruitRole(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
-              />
+
+              <div className="w-full">
+                {/* Label above the dropdown */}
+                <label className="block mb-2 text-gray-300">
+                  Role you’re applying for
+                </label>
+
+                {/* Dropdown menu */}
+                <select
+                  value={recruitRole}
+                  onChange={(e) => setRecruitRole(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
+                >
+                  <option value="" disabled>
+                    -- Select a role --
+                  </option>
+                  {roles.map((role, index) => (
+                    <option key={index} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+
+                {/* If "Other" is selected, show a text input */}
+                {recruitRole === "Other (please specify)" && (
+                  <input
+                    type="text"
+                    placeholder="Enter your preferred role"
+                    value={customRole}
+                    onChange={(e) => setCustomRole(e.target.value)}
+                    className="w-full mt-3 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
+                  />
+                )}
+              </div>
+
+
               <textarea
                 placeholder="Your experience in this role"
                 rows="3"
@@ -235,6 +269,15 @@ export default function HomePage() {
                 onChange={(e) => setRecruitExperience(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
               ></textarea>
+
+              <textarea
+                placeholder="How you would contribute to PassionPoint's development"
+                rows="3"
+                value={contribution}
+                onChange={(e) => setContribution(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
+              ></textarea>
+
               <Button
                 type="submit"
                 className="w-full bg-white text-black font-semibold hover:bg-gray-200 rounded-lg py-2"

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -24,19 +24,24 @@ const CreateForumForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const post = {
-      title,
-      content,
-      category,
-      authorId: user.uid,
-      authorName: user.displayName || "Anonymous",
-      date: serverTimestamp(),
-      likes: 0,
-      likedBy: [],
-      views: 0,
-    };
-
     try {
+      // ✅ Fetch username from Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      const username = userDoc.exists() ? userDoc.data().username : "Anonymous";
+
+      const post = {
+        title,
+        content,
+        category,
+        authorId: user.uid,
+        authorName: username,
+        date: serverTimestamp(),
+        likes: 0,
+        likedBy: [],
+        views: 0,
+      };
+
       const docRef = await addDoc(collection(db, "forumPosts"), post);
       navigate(`/forum/${docRef.id}`);
     } catch (err) {
@@ -48,7 +53,7 @@ const CreateForumForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-4 space-y-4">
-      {/* Back to Blogs Button */}
+      {/* Back to Forums Button */}
       <button
         type="button"
         onClick={() => navigate("/forum")}
@@ -97,4 +102,3 @@ const CreateForumForm = () => {
 };
 
 export default CreateForumForm;
-

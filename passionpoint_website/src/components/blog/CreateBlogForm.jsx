@@ -7,19 +7,14 @@ import { db } from "../../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
-const categories = [
-  "Science",
-  "Mathematics",
-  "Technology & AI",
-  "Lifestyle",
-  "Books",
-  "History",
-  "Psychology",
-  "Languages",
-];
+import { categories } from "../../constants/categories";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const CreateBlogForm = () => {
+  const DEFAULT_BANNER = "/images/default-banner.png";
+
+  const isValidImageUrl = (url) => /\.(jpeg|jpg|png|gif|webp)$/i.test(url);
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -29,18 +24,36 @@ const CreateBlogForm = () => {
   const [tags, setTags] = useState("");
   const [category, setCategory] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [file, setFile] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) return;
+  e.preventDefault();
+  if (!user) return;
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
+  const storage = getStorage();
+
+  try {
+    let finalBanner = DEFAULT_BANNER;
+
+    if (file) {
+      console.log("Uploading file:", file.name);
+      const storageRef = ref(storage, `users/${user.uid}/banners/${Date.now()}-${file.name}`);
+      await uploadBytes(storageRef, file);
+      finalBanner = await getDownloadURL(storageRef);
+      console.log("✅ File uploaded:", finalBanner);
+    } else if (isValidImageUrl(bannerImage)) {
+      finalBanner = bannerImage;
+      console.log("✅ Using custom URL:", finalBanner);
+    } else {
+      console.log("⚠️ No valid image provided, using default banner.");
+    }
 
     const blog = {
       title,
-      bannerImage,
+      bannerImage: finalBanner,
       content,
-      tags: tags.split(",").map((tag) => tag.trim()),
+      tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
       category,
       author: user.displayName || user.email,
       authorId: user.uid,
@@ -50,20 +63,25 @@ const CreateBlogForm = () => {
       views: 0,
     };
 
-    try {
-      const docRef = await addDoc(collection(db, "blogs"), blog);
-      navigate(`/blog/${docRef.id}`);
-    } catch (err) {
-      console.error("Error creating blog:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    const docRef = await addDoc(collection(db, "blogs"), blog);
+    console.log("✅ Blog published with ID:", docRef.id);
+    navigate(`/blog/${docRef.id}`);
+  } catch (err) {
+    console.error("❌ Error creating blog:", err);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-  if (!user) return <p className="p-4 text-center">Please log in to create a blog post.</p>;
+
+  if (!user)
+    return <p className="p-4 text-center">Please log in to create a blog post.</p>;
 
   return (
-    <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto p-4 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="relative max-w-2xl mx-auto p-4 space-y-4"
+    >
       {/* Back to Blogs Button */}
       <button
         type="button"
@@ -89,7 +107,13 @@ const CreateBlogForm = () => {
         placeholder="Banner Image URL"
         value={bannerImage}
         onChange={(e) => setBannerImage(e.target.value)}
-        required
+      />
+
+      <p className="text-gray-500 text-sm">or upload an image</p>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setFile(e.target.files[0])}
       />
 
       <Textarea
@@ -113,7 +137,9 @@ const CreateBlogForm = () => {
         required
         className="w-full p-2 rounded-md border border-gray-300 bg-white text-black"
       >
-        <option value="" disabled>Select a Category</option>
+        <option value="" disabled>
+          Select a Category
+        </option>
         {categories.map((cat) => (
           <option key={cat} value={cat}>
             {cat}
@@ -129,4 +155,5 @@ const CreateBlogForm = () => {
 };
 
 export default CreateBlogForm;
+
 
