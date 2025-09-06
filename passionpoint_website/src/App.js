@@ -2,6 +2,7 @@ import React from "react"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 // Import your pages
+import Layout from "./layouts/Layout";
 import HomePage from "./pages/Home";
 import Register from "./pages/Register";
 import Blog from "./pages/Blog";
@@ -19,24 +20,27 @@ import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:id" element={<BlogPost />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path ="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/create-blog" element={<CreateBlogForm />} />
-        <Route path="/forum" element={<Forum />} />
-        <Route path="/create-forum" element={<CreateForumPost />} />
-        <Route path="/forum/:id" element={<ForumPost />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-      </Routes>
-    </Router>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path ="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/create-blog" element={<CreateBlogForm />} />
+            <Route path="/forum" element={<Forum />} />
+            <Route path="/create-forum" element={<CreateForumPost />} />
+            <Route path="/forum/:id" element={<ForumPost />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+          </Routes>
+        </Layout>
+      </Router>
+    
   )
 }
 

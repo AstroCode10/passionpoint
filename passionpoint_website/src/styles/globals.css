@@ -24,3 +24,24 @@ html, body, #root {
   margin: 0;
   padding: 0;
 }
+
+/* Aurora Gradient Animation - Dark, Realistic Aurora */
+.aurora-bg {
+  background: linear-gradient(270deg, #0b0c2a, #1a1f4b, #2e2c5c, #268565, #0b0c2a);
+  background-size: 1200% 1200%;
+  animation: auroraGradient 50s ease infinite;
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+}
+
+@keyframes auroraGradient {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 50%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+

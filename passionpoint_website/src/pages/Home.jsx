@@ -102,7 +102,7 @@ export default function HomePage() {
       <section
         id="hero"
         className="min-h-screen bg-cover bg-center flex items-center justify-center text-center px-4"
-        style={{ backgroundImage: "url('/images/background.jpg')" }}
+
       >
         <motion.div
           initial="hidden"
